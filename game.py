@@ -92,6 +92,42 @@ def game_over():
     restart_rect.midtop = (MAX_WIDTH / 2, MAX_HEIGHT / 1.5)
     screen.blit(restart_surface, restart_rect)
 
+def turn_mapping(state_vector, current_direction):
+        print("Agent State:", state_vector)
+        agent_action = agent_instance.act(state_vector)
+        print("Agent Action:", agent_action)
+        directions = ['UP', 'RIGHT', 'DOWN', 'LEFT']
+        idx = directions.index(current_direction) #current direction index
+        match idx:
+            case 0:  # UP
+                if agent_action == 'STRAIGHT':
+                    return 'UP'
+                elif agent_action == 'LEFT':
+                    return 'LEFT'
+                elif agent_action == 'RIGHT':
+                    return 'RIGHT'
+            case 1:  # RIGHT
+                if agent_action == 'STRAIGHT':
+                    return 'RIGHT'
+                elif agent_action == 'LEFT':
+                    return 'UP'
+                elif agent_action == 'RIGHT':
+                    return 'DOWN'
+            case 2:  # DOWN
+                if agent_action == 'STRAIGHT':
+                    return 'DOWN'
+                elif agent_action == 'LEFT':
+                    return 'RIGHT'
+                elif agent_action == 'RIGHT':
+                    return 'LEFT'
+            case 3:  # LEFT
+                if agent_action == 'STRAIGHT':
+                    return 'LEFT'
+                elif agent_action == 'LEFT':
+                    return 'DOWN'
+                elif agent_action == 'RIGHT':
+                    return 'UP'
+
 #main game loop
 while running:
     #event handling
@@ -118,16 +154,12 @@ while running:
     #per frame updates
     screen.fill(BACKGROUND_COLOR)  # Fill the screen with background color
     if ai_mode:
-        agent_state = agent_instance.get_state(snk.body, food_pos, snk.direction)
-        print("Agent State:", agent_state)
-        agent_action = agent_instance.act(agent_state)
-        print("Agent Action:", agent_action)
-        if agent_action == 'STRAIGHT':
-            snk.move()
-            pass  # keep current direction
-        else:
-            snk.change_direction(agent_action)
-            snk.move()
+        # Get the current state vector
+        state_vector = agent_instance.get_state(snk.body, food_pos, snk.direction)
+        # Determine the new direction based on the agent's action
+        new_direction = turn_mapping(state_vector, snk.direction)
+        snk.change_direction(new_direction)
+        snk.move()
     else:
         snk.change_direction(direction)
         snk.move()

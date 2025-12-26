@@ -1,5 +1,5 @@
-GRID_WIDTH = 10
-GRID_HEIGHT = 10
+GRID_WIDTH = 20
+GRID_HEIGHT = 20
 danger_zone = [0, 0, 0] #front, left, right
 food_dir = [0, 0, 0, 0] #up, down, left, right
 moving_dir = [0, 0, 0, 1] #up, down, left, right
