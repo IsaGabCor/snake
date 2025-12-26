@@ -1,4 +1,4 @@
-class snake:
+class Snake:
 
     def __init__(self, length=3, direction='RIGHT', position = (0,0)):
         self.length = length

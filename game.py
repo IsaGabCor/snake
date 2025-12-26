@@ -1,7 +1,8 @@
 import pygame
 import random
 import sys
-import snake
+import Snake
+import Agent
 
 #initialize pygame
 pygame.init()
@@ -41,8 +42,11 @@ direction = 'RIGHT'
 score = 0
 gameover = False
 running = True
+#initialize AI agent
+ai_mode = False
+agent_instance = Agent.Agent()
 #initialize snake
-snk = snake.snake(length=3, direction='RIGHT', position=(10,10))
+snk = Snake.Snake(length=3, direction='RIGHT', position=(10,10))
 
 #define helper functions
 def collision_with_boundaries(snake_head):
@@ -97,20 +101,37 @@ while running:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w:
-                direction = 'UP'
-            elif event.key == pygame.K_s:
-                direction = 'DOWN'
-            elif event.key == pygame.K_a:
-                direction = 'LEFT'
-            elif event.key == pygame.K_d:
-                direction = 'RIGHT'
+            if not ai_mode:
+                if event.key == pygame.K_w:
+                    direction = 'UP'
+                elif event.key == pygame.K_s:
+                    direction = 'DOWN'
+                elif event.key == pygame.K_a:
+                    direction = 'LEFT'
+                elif event.key == pygame.K_d:
+                    direction = 'RIGHT'
+            if event.key == pygame.K_f:
+                # Toggle AI mode
+                print("Toggling AI mode")
+                ai_mode = not ai_mode
 
     #per frame updates
     screen.fill(BACKGROUND_COLOR)  # Fill the screen with background color
-    # Update snake position
-    snk.change_direction(direction)
-    snk.move()
+    if ai_mode:
+        agent_state = agent_instance.get_state(snk.body, food_pos, snk.direction)
+        print("Agent State:", agent_state)
+        agent_action = agent_instance.act(agent_state)
+        print("Agent Action:", agent_action)
+        if agent_action == 'STRAIGHT':
+            snk.move()
+            pass  # keep current direction
+        else:
+            snk.change_direction(agent_action)
+            snk.move()
+    else:
+        snk.change_direction(direction)
+        snk.move()
+
     # Check for collisions with walls
     running = running and not collision_with_boundaries(snk.body[0])
     # Check for collisions with itself
@@ -121,9 +142,11 @@ while running:
     if not food_spawn:
         food_pos = [random.randrange(1, GRID_WIDTH), random.randrange(1, GRID_HEIGHT)]
         food_spawn = True
+
     #draw snake
     for pos in snk.body:
         pygame.draw.rect(screen, BLACK, pygame.Rect(pos[0] * SNAKE_SIZE, pos[1] * SNAKE_SIZE, SNAKE_SIZE, SNAKE_SIZE))
+    
     #draw food
     pygame.draw.rect(screen, RED, pygame.Rect(food_pos[0] * FOOD_SIZE, food_pos[1] * FOOD_SIZE, FOOD_SIZE, FOOD_SIZE))
     #draw score
@@ -132,13 +155,13 @@ while running:
     pygame.display.update()
     # Control the frame rate
     clock.tick(FPS)
-#game over handling
+    
+    #game over handling
     if not running:
         game_over_sound.play()
         # Game over screen
         game_over()
         pygame.display.update()
-        pygame.time.delay(2000)
         waiting_for_restart = True
         while waiting_for_restart:
             for event in pygame.event.get():
@@ -148,7 +171,7 @@ while running:
                     if event.key == pygame.K_y:
                         # Reset game variables
                         snake_body = [[10, 10], [9, 10], [8, 10]]
-                        snk = snake.snake(length=3, direction='RIGHT', position=(10,10))
+                        snk = Snake.Snake(length=3, direction='RIGHT', position=(10,10))
                         food_pos = [random.randrange(1, GRID_WIDTH), random.randrange(1, GRID_HEIGHT)]
                         food_spawn = True
                         direction = 'RIGHT'
