@@ -92,41 +92,21 @@ def game_over():
     restart_rect.midtop = (MAX_WIDTH / 2, MAX_HEIGHT / 1.5)
     screen.blit(restart_surface, restart_rect)
 
-def turn_mapping(state_vector, current_direction):
-        print("Agent State:", state_vector)
-        agent_action = agent_instance.act(state_vector)
-        print("Agent Action:", agent_action)
-        directions = ['UP', 'RIGHT', 'DOWN', 'LEFT']
-        idx = directions.index(current_direction) #current direction index
-        match idx:
-            case 0:  # UP
-                if agent_action == 'STRAIGHT':
-                    return 'UP'
-                elif agent_action == 'LEFT':
-                    return 'LEFT'
-                elif agent_action == 'RIGHT':
-                    return 'RIGHT'
-            case 1:  # RIGHT
-                if agent_action == 'STRAIGHT':
-                    return 'RIGHT'
-                elif agent_action == 'LEFT':
-                    return 'UP'
-                elif agent_action == 'RIGHT':
-                    return 'DOWN'
-            case 2:  # DOWN
-                if agent_action == 'STRAIGHT':
-                    return 'DOWN'
-                elif agent_action == 'LEFT':
-                    return 'RIGHT'
-                elif agent_action == 'RIGHT':
-                    return 'LEFT'
-            case 3:  # LEFT
-                if agent_action == 'STRAIGHT':
-                    return 'LEFT'
-                elif agent_action == 'LEFT':
-                    return 'DOWN'
-                elif agent_action == 'RIGHT':
-                    return 'UP'
+def turn_mapping(action, current_direction):
+        #print("Agent State:", action)
+        agent_action = agent_instance.act(action)
+        #print("Agent Action:", agent_action)
+        if action == 'STRAIGHT':
+            return current_direction
+        if current_direction == 'UP':
+            return 'LEFT' if action == 'LEFT' else 'RIGHT'
+        if current_direction == 'DOWN':
+            return 'RIGHT' if action == 'LEFT' else 'LEFT'
+        if current_direction == 'LEFT':
+            return 'DOWN' if action == 'LEFT' else 'UP'
+        if current_direction == 'RIGHT':
+            return 'UP' if action == 'LEFT' else 'DOWN'
+                  
 
 #main game loop
 while running:
@@ -154,10 +134,16 @@ while running:
     #per frame updates
     screen.fill(BACKGROUND_COLOR)  # Fill the screen with background color
     if ai_mode:
-        # Get the current state vector
-        state_vector = agent_instance.get_state(snk.body, food_pos, snk.direction)
-        # Determine the new direction based on the agent's action
-        new_direction = turn_mapping(state_vector, snk.direction)
+        state_vector = agent_instance.get_state(
+            snk.body,
+            food_pos,
+            snk.direction
+        )
+        #print(state_vector)
+        # get action from the agent's state
+        action = agent_instance.act(state_vector)
+        new_direction = turn_mapping(action, snk.direction)
+        direction = new_direction
         snk.change_direction(new_direction)
         snk.move()
     else:
