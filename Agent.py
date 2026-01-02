@@ -78,7 +78,7 @@ class Agent:
     
     def act(self, state):
         danger_front, danger_left, danger_right = state[0:3] #[f, l, r] danger zone
-        print(state)
+        #print(state) #debug line
         if danger_front:
             if not danger_left:
                 return 'LEFT'

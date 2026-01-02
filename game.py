@@ -4,6 +4,7 @@ import sys
 import Snake
 import Agent
 
+
 #initialize pygame
 pygame.init()
 pygame.mixer.init()
@@ -13,10 +14,11 @@ SNAKE_SIZE = 20
 BORDER_SIZE = 18
 FOOD_SIZE = 20
 FPS = 5
-MAX_WIDTH = 400
-MAX_HEIGHT = 400
-GRID_WIDTH = 20
-GRID_HEIGHT = 20
+MAX_WIDTH = 400 #used for window size
+MAX_HEIGHT = 400 #used for window size
+GRID_WIDTH = 20 #actual game "board"
+GRID_HEIGHT = 20 #actual game "board"
+GRID_SIZE = 20
 
 #colors
 WHITE = (255, 255, 255)
@@ -31,8 +33,8 @@ screen = pygame.display.set_mode((MAX_WIDTH, MAX_HEIGHT))
 clock = pygame.time.Clock()
 
 #load assets
-lvlup_sound = pygame.mixer.Sound("snake/assets/lvlup.wav")
-game_over_sound = pygame.mixer.Sound("snake/assets/gameover.wav")
+lvlup_sound = pygame.mixer.Sound("assets/lvlup.wav")
+game_over_sound = pygame.mixer.Sound("assets/gameover.wav")
 
 #initialize game variables
 snake_body = [[10, 10], [9, 10], [8, 10]]
@@ -106,7 +108,15 @@ def turn_mapping(action, current_direction):
             return 'DOWN' if action == 'LEFT' else 'UP'
         if current_direction == 'RIGHT':
             return 'UP' if action == 'LEFT' else 'DOWN'
-                  
+        
+def spawn_food(snake):
+    while True:
+        pos = (
+            random.randint(0, GRID_SIZE - 1),
+            random.randint(0, GRID_SIZE - 1),
+        )
+        if pos not in snake.body:
+            return pos               
 
 #main game loop
 while running:
@@ -158,8 +168,7 @@ while running:
     food_spawn = not has_eaten_food(snk.body[0], food_pos)
      #spawn food
     if not food_spawn:
-        food_pos = [random.randrange(1, GRID_WIDTH), random.randrange(1, GRID_HEIGHT)]
-        food_spawn = True
+        food_pos = spawn_food(snk)
 
     #draw snake
     for pos in snk.body:

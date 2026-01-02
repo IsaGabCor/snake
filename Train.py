@@ -1,0 +1,69 @@
+import numpy as np
+
+from Model import NeuralNetwork
+from Genetic import GeneticAlgorithm
+from Game import run_game
+
+POPULATION_SIZE = 200 #more agents smooth mutation, lesser create more noise but evolve faster
+GENERATIONS = 50
+
+INPUT_SIZE = 12 #state vector
+HIDDEN_SIZE = 16
+OUTPUT_SIZE = 4 #direction choices
+
+ELITE_FRACTION = 0.2 #number of elites chosen
+MUTATION_RATE = 0.05 #rate of change
+MUTATION_STRENGTH = 0.5 #strength of change
+
+
+def main():
+    #Create initial population
+    #all brains are created randomly and start bad (on purpose)
+    population = [
+        NeuralNetwork(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
+        for _ in range(POPULATION_SIZE)
+    ]
+
+    ga = GeneticAlgorithm(
+        #this stores evol. rules, and nothing else
+        population_size=POPULATION_SIZE,
+        elite_fraction=ELITE_FRACTION,
+        mutation_rate=MUTATION_RATE,
+        mutation_strength=MUTATION_STRENGTH
+    )
+
+    #Training loop
+    #each loop is another gen.
+    for generation in range(GENERATIONS):
+        fitnesses = []
+
+        #Evaluate each agent
+        for brain in population:
+            fitness = run_game(brain)
+            fitnesses.append(fitness)
+
+        fitnesses = np.array(fitnesses)
+
+        #Logging
+        best = np.max(fitnesses)
+        avg = np.mean(fitnesses)
+
+        print(
+            f"Generation {generation:3d} | "
+            f"Best: {best:6.1f} | "
+            f"Avg: {avg:6.2f}"
+        )
+
+        #Evolve population
+        population = ga.evolve(population, fitnesses)
+
+    #save best model
+    best_index = np.argmax(fitnesses)
+    best_brain = population[best_index]
+
+    np.save("best_W1.npy", best_brain.W1)
+    np.save("best_W2.npy", best_brain.W2)
+
+
+if __name__ == "__main__":
+    main()
