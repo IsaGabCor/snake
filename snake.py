@@ -16,6 +16,9 @@ class Snake:
                 self.body.append((position[0], position[1] - i))
     
     def move(self):
+        assert self.direction in ('UP', 'DOWN', 'LEFT', 'RIGHT'), \
+            f"Invalid direction: {self.direction}"
+
         head_x, head_y = self.body[0]
         if self.direction == 'RIGHT':
             new_head = (head_x + 1, head_y)

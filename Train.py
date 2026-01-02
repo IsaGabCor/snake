@@ -1,15 +1,16 @@
 import numpy as np
+import pickle
 
 from Model import NeuralNetwork
 from Genetic import GeneticAlgorithm
-from Game import run_game
+from Snake_logic import run_game
 
 POPULATION_SIZE = 200 #more agents smooth mutation, lesser create more noise but evolve faster
 GENERATIONS = 50
 
-INPUT_SIZE = 12 #state vector
+INPUT_SIZE = 11 #state vector
 HIDDEN_SIZE = 16
-OUTPUT_SIZE = 4 #direction choices
+OUTPUT_SIZE = 3 #direction choices
 
 ELITE_FRACTION = 0.2 #number of elites chosen
 MUTATION_RATE = 0.05 #rate of change
@@ -34,6 +35,7 @@ def main():
 
     #Training loop
     #each loop is another gen.
+    best_ever = 0.0
     for generation in range(GENERATIONS):
         fitnesses = []
 
@@ -61,8 +63,15 @@ def main():
     best_index = np.argmax(fitnesses)
     best_brain = population[best_index]
 
-    np.save("best_W1.npy", best_brain.W1)
-    np.save("best_W2.npy", best_brain.W2)
+    if best_index > best_ever:
+        best_ever = best_index
+        best_brain = population[best_index]
+
+
+    np.save("best_W1.npy", best_brain.w1)
+    np.save("best_W2.npy", best_brain.w2)
+    with open("gen_logs/best_brain.pkl", "wb") as f:
+        pickle.dump(best_brain, f)
 
 
 if __name__ == "__main__":

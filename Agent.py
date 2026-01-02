@@ -16,8 +16,11 @@ def turn_right(dx, dy):
     return -dy, dx
 
 class Agent:
-    def __init__(self):
+    def __init__(self, brain):
         pass
+
+    # def __init__(self):
+    #     pass
     
     def get_danger_zone(self, head, snake_body, current_direction):
         danger = [0, 0, 0]  # NEW list every frame
@@ -64,11 +67,11 @@ class Agent:
         else:
             return [0, 0, 0, 1] #right
     
-    def get_state(self, snake_body, food_pos, current_direction):
-        head = snake_body[0]
+    def get_state(self, snake, food_pos, current_direction):
+        head = snake.body[0]
 
         #danger zone
-        new_danger_zone = self.get_danger_zone(head, snake_body, current_direction)
+        new_danger_zone = self.get_danger_zone(head, snake.body, current_direction)
         #food direction
         new_food_dir = self.get_food_dir(head, food_pos)
         #moving direction
