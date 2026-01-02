@@ -6,15 +6,15 @@ from Genetic import GeneticAlgorithm
 from Snake_logic import run_game
 
 POPULATION_SIZE = 200 #more agents smooth mutation, lesser create more noise but evolve faster
-GENERATIONS = 50
+GENERATIONS = 100
 
 INPUT_SIZE = 11 #state vector
 HIDDEN_SIZE = 16
 OUTPUT_SIZE = 3 #direction choices
 
-ELITE_FRACTION = 0.2 #number of elites chosen
-MUTATION_RATE = 0.05 #rate of change
-MUTATION_STRENGTH = 0.5 #strength of change
+ELITE_FRACTION = 0.1 #number of elites chosen
+MUTATION_RATE = 0.12 #rate of change
+MUTATION_STRENGTH = 0.15 #strength of change
 
 
 def main():
@@ -56,8 +56,8 @@ def main():
             f"Avg: {avg:6.2f}"
         )
 
-        #Evolve population
-        population = ga.evolve(population, fitnesses)
+    #Evolve population
+    population = ga.evolve(population, fitnesses)
 
     #save best model
     best_index = np.argmax(fitnesses)
@@ -67,6 +67,7 @@ def main():
         best_ever = best_index
         best_brain = population[best_index]
 
+    print("Best Score: ", best_ever)
 
     np.save("best_W1.npy", best_brain.w1)
     np.save("best_W2.npy", best_brain.w2)

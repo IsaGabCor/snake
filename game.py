@@ -3,11 +3,18 @@ import random
 import sys
 import Snake
 import Agent
+import numpy as np
+import pickle
+from Snake_logic import get_new_direction
 
 
 #initialize pygame
 pygame.init()
 pygame.mixer.init()
+
+#open logs
+with open("gen_logs/best_brain.pkl", "rb") as f:
+    brain = pickle.load(f)
 
 #define constants
 SNAKE_SIZE = 20
@@ -44,9 +51,10 @@ direction = 'RIGHT'
 score = 0
 gameover = False
 running = True
+
 #initialize AI agent
 ai_mode = False
-agent_instance = Agent.Agent()
+agent_instance = Agent.Agent(brain)
 #initialize snake
 snk = Snake.Snake(length=3, direction='RIGHT', position=(10,10))
 
@@ -145,15 +153,15 @@ while running:
     screen.fill(BACKGROUND_COLOR)  # Fill the screen with background color
     if ai_mode:
         state_vector = agent_instance.get_state(
-            snk.body,
+            snk,
             food_pos,
             snk.direction
         )
         #print(state_vector)
         # get action from the agent's state
-        action = agent_instance.act(state_vector)
-        new_direction = turn_mapping(action, snk.direction)
-        direction = new_direction
+        output = brain.forward(state_vector)
+        action = np.argmax(output)
+        new_direction = get_new_direction(snk.direction, action)
         snk.change_direction(new_direction)
         snk.move()
     else:
