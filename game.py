@@ -164,6 +164,7 @@ while running:
         new_direction = get_new_direction(snk.direction, action)
         snk.change_direction(new_direction)
         snk.move()
+        print(state_vector, " | ", action)
     else:
         snk.change_direction(direction)
         snk.move()

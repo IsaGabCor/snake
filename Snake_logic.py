@@ -5,7 +5,7 @@ from Snake import Snake
 
 
 GRID_SIZE = 20
-MAX_STEPS = 200
+MAX_STEPS = 500
 
 @property
 def head(self):
@@ -38,7 +38,6 @@ def hit_wall(self, grid_size):
     head_x, head_y = self.body[0]
     return head_x < 0 or head_x >= grid_size or head_y < 0 or head_y >= grid_size
 
-
 def run_game(brain):
     """
     Runs one full snake game controlled by the given brain.
@@ -53,6 +52,15 @@ def run_game(brain):
     steps = 0
     score = 0
     steps_since_food = 0
+    hunger_limit = GRID_SIZE * 0.75
+    turn_penalty = 0.05
+    dist_reward = 0.5
+    dist_penalty = -0.2
+    food_score = 0
+    FOOD_REWARD = 15
+    SURVIVAL_REWARD = 0.01
+    DEATH_PENALTY = 70
+    fitness = 0
 
     while True:
         steps += 1
@@ -66,13 +74,27 @@ def run_game(brain):
         output = brain.forward(state)
         action = np.argmax(output)
 
+        #get distance of food for rewarding before move()
+        prev_dist = Agent.manhattan_distance(snake.body[0], food)
+
         #Apply action
+        old_dir = snake.direction
         new_dir = get_new_direction(snake.direction, action)
+        if new_dir != old_dir :
+            fitness -= turn_penalty 
         snake.change_direction(new_dir)
         snake.move()
 
+        #get distance of food for rewarding
+        new_dist = Agent.manhattan_distance(snake.body[0], food)
+        if new_dist < prev_dist:
+            fitness += dist_reward
+        elif new_dist > prev_dist:
+            fitness -= dist_penalty
+
         #Check collisions
         if hit_wall(snake, GRID_SIZE) or hit_self(snake):
+            fitness -= DEATH_PENALTY
             break
 
         #Check food
@@ -80,19 +102,23 @@ def run_game(brain):
         if snake.body[0] == food:
             snake.grow()
             food = spawn_food(snake)
+            food_score = FOOD_REWARD * (score ** 2)
             score += 1
             steps_since_food = 0
 
         #Starvation cutoff (prevents infinite loops)
-        if steps_since_food > 100:
+        if steps_since_food > hunger_limit:
+            fitness -= DEATH_PENALTY
             break
 
         #Absolute step limit
         if steps >= MAX_STEPS:
             break
 
+        fitness += SURVIVAL_REWARD
+
     # 8. Fitness calculation
-    fitness = score * 100 + steps
+    fitness = score * 100 + food_score + steps 
 
     ##print(fitness)
     return fitness
