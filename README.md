@@ -5,6 +5,9 @@ This project is a reinforcement learning experiment where a Snake agent learns t
 Unlike traditional Snake AIs that use hand-written rules, this agent learns entirely from reward signals and environment feedback.
 
 ---
+![](human_snake.gif)
+
+
 
 ## How It Works
 
@@ -37,6 +40,8 @@ A population of neural networks is evolved using a **genetic algorithm**:
 
 Over generations, the population gradually improves its behavior.
 
+
+![](train_snake.gif)
 ---
 
 ## Visualization
@@ -44,6 +49,8 @@ Over generations, the population gradually improves its behavior.
 The best-performing neural network can be loaded into a Pygame visualization to watch how the trained agent behaves in real time.
 This was defintely my favorite part and the one feature that I was anticipating the most. It was a bit funny to watch my snake head straight into the wall at first.
 The most rewarding part was watching the snake go for food for the first time.
+
+![](AI_snake.gif)
 
 ---
 
