@@ -3,7 +3,7 @@ import numpy as np
 GRID_WIDTH = 20
 GRID_HEIGHT = 20
 
-VISION_RADIUS = 1
+VISION_RADIUS = 2
 
 #direction vectors
 DIR_VECTORS = {
@@ -52,11 +52,11 @@ def get_local_grid(snake, head, food):
             y = head_y + dy
 
             if x > GRID_WIDTH or x < 0 or y > GRID_WIDTH or y < 0:
-                grid.append(1) #wall
+                grid.append(-1) #wall
             elif (x, y) in snake.body:
-                grid.append(2) #body
+                grid.append(-0.5) #body
             elif (x, y) == food:
-                grid.append(3) #food
+                grid.append(1) #food
             else:
                 grid.append(0) #empty
 
@@ -65,7 +65,7 @@ def get_local_grid(snake, head, food):
     
 def rotate_grid(snake, grid):
     size = 2 * VISION_RADIUS + 1
-    grid2d = [grid[i*size:(i + 1)*size] for i in range]
+    grid2d = [grid[i*size:(i + 1)*size] for i in range(size)]
 
     #rotate grid based on direction headed
     if snake.direction == 'UP':
@@ -79,6 +79,18 @@ def rotate_grid(snake, grid):
 
     rotated_flat = [cell for row in rotated for cell in row]
     return rotated_flat
+
+def relative_to_absolute(current_dir, action):
+    # 0 = straight, 1 = left, 2 = right
+    dirs = ["UP", "RIGHT", "DOWN", "LEFT"]
+    i = dirs.index(current_dir)
+
+    if action == 0:      # straight
+        return dirs[i]
+    elif action == 1:    # left
+        return dirs[(i - 1) % 4]
+    elif action == 2:    # right
+        return dirs[(i + 1) % 4]
 
 
 class Agent:
@@ -141,17 +153,21 @@ class Agent:
         #new_danger_zone = self.get_danger_zone(head, snake.body, current_direction)
 
         #food direction
-        new_food_dir = self.get_food_dir(head, food_pos)
+        #new_food_dir = self.get_food_dir(head, food_pos)
+
         #moving direction
         new_moving_dir = self.get_moving_direction(current_direction)
 
+        """
         dist = (
             abs(head[0] - food_pos[0]) +
             abs(head[1] - food_pos[1])
             ) / (2 * GRID_HEIGHT)
         #state.append(dist / (2 * GRID_SIZE))
+        """
 
-        return grid + new_food_dir + new_moving_dir + [dist]
+        #return new_danger_zone + grid + new_food_dir + new_moving_dir + [dist]
+        return grid + new_moving_dir 
     
     def act(self, state):
         danger_front, danger_left, danger_right = state[0:3] #[f, l, r] danger zone

@@ -18,6 +18,20 @@ class GeneticAlgorithm:
         self.mutation_rate = mutation_rate
         self.mutation_strength = mutation_strength
 
+    def crossover(self, parent1, parent2):
+        child = parent1.copy()
+
+        for p_child, p1, p2 in zip(
+            [child.w1, child.b1, child.w2, child.b2],
+            [parent1.w1, parent1.b1, parent1.w2, parent1.b2],
+            [parent2.w1, parent2.b1, parent2.w2, parent2.b2],
+        ):
+            mask = np.random.rand(*p_child.shape) < 0.5
+            p_child[:] = np.where(mask, p1, p2)
+
+        return child
+
+
     def evolve(self, population, fitnesses):
         #population: list of nn objects
         #fitnesses: list of fitness scores (same length)
@@ -42,10 +56,13 @@ class GeneticAlgorithm:
 
         #fill rest with mutated copies of elites
         while len(new_pop) < self.population_size:
-            parent = np.random.choice(elites)
-            child = parent.copy()
+            p1, p2 = np.random.choice(elites, 2, replace=False)
+            child = self.crossover(p1, p2)
             self.mutate(child)
+            if np.random.rand() < 0.1:
+                self.mutate(child)
             new_pop.append(child)
+
 
         return new_pop
 

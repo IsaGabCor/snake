@@ -6,6 +6,7 @@ import Agent
 import numpy as np
 import pickle
 from Snake_logic import get_new_direction
+from Agent import relative_to_absolute
 
 
 #initialize pygame
@@ -149,6 +150,7 @@ while running:
                 print("Toggling AI mode")
                 ai_mode = not ai_mode
 
+
     #per frame updates
     screen.fill(BACKGROUND_COLOR)  # Fill the screen with background color
     if ai_mode:
@@ -159,12 +161,12 @@ while running:
         )
         #print(state_vector)
         # get action from the agent's state
-        output = brain.forward(state_vector)
-        action = np.argmax(output)
-        new_direction = get_new_direction(snk.direction, action)
+        action = np.argmax(brain.forward(state_vector))
+        new_direction = relative_to_absolute(snk.direction, action)
         snk.change_direction(new_direction)
         snk.move()
-        print(state_vector, " | ", action)
+        out = brain.forward(state_vector)
+        print("NN:", out, " Action:", np.argmax(out))
     else:
         snk.change_direction(direction)
         snk.move()

@@ -5,16 +5,16 @@ from Model import NeuralNetwork
 from Genetic import GeneticAlgorithm
 from Snake_logic import run_game
 
-POPULATION_SIZE = 100 #more agents smooth mutation, lesser create more noise but evolve faster
-GENERATIONS = 10
+POPULATION_SIZE = 500 #more agents smooth mutation, lesser create more noise but evolve faster
+GENERATIONS = 2000
 
-INPUT_SIZE = 12 #state vector
+INPUT_SIZE = 29 #state vector
 HIDDEN_SIZE = 16
 OUTPUT_SIZE = 3 #direction choices
 
-ELITE_FRACTION = 0.02 #number of elites chosen
-MUTATION_RATE = 0.6 #rate of change
-MUTATION_STRENGTH = 0.8 #strength of change
+ELITE_FRACTION = 0.08 #number of elites chosen
+MUTATION_RATE = 0.35 #rate of change
+MUTATION_STRENGTH = 0.6 #strength of change
 
 
 def main():
@@ -56,23 +56,30 @@ def main():
         avg = np.mean(fitnesses)
         avg_history.append(avg)
 
+        if generation > 0:
+            if avg_history[-1] - avg_history[-2] < 1:
+                ga.mutation_rate = min(0.5, ga.mutation_rate * 1.1)
+                ga.mutation_strength = min(1.0, ga.mutation_strength * 1.05)
+
+
         print(
             f"Generation {generation:3d} | "
             f"Best: {best:6.1f} | "
             f"Avg: {avg:6.2f}"
         )
 
-    #Evolve population
-    population = ga.evolve(population, fitnesses)
+        #save best model
+        best_index = np.argmax(fitnesses)
+        best_brain = population[best_index].copy()
 
-    #save best model
-    best_index = np.argmax(fitnesses)
-    best_brain = population[best_index]
+        if best > best_ever:
+            best_ever = best
+            best_brain = population[best_index]
+            best_history.append(best_ever)
 
-    if best > best_ever:
-        best_ever = best
-        best_brain = population[best_index]
-        best_history.append(best_ever)
+        #Evolve population
+        population = ga.evolve(population, fitnesses)
+
 
     print("Best Score: ", best_ever)
 

@@ -1,6 +1,7 @@
 import numpy as np
 import random 
 from Agent import Agent
+from Agent import manhattan_distance
 from Snake import Snake
 
 
@@ -53,13 +54,12 @@ def run_game(brain):
     score = 0
     steps_since_food = 0
     hunger_limit = GRID_SIZE * 0.75
-    turn_penalty = 0.05
-    dist_reward = 0.5
-    dist_penalty = -0.2
-    food_score = 0
-    FOOD_REWARD = 15
-    SURVIVAL_REWARD = 0.01
-    DEATH_PENALTY = 70
+    turn_penalty = 0.02
+    dist_reward = 0.4
+    dist_penalty = -0.4
+    FOOD_REWARD = 50
+    SURVIVAL_REWARD = 0.005
+    DEATH_PENALTY = 100
     fitness = 0
 
     while True:
@@ -75,7 +75,7 @@ def run_game(brain):
         action = np.argmax(output)
 
         #get distance of food for rewarding before move()
-        prev_dist = Agent.manhattan_distance(snake.body[0], food)
+        prev_dist = manhattan_distance(snake.body[0], food)
 
         #Apply action
         old_dir = snake.direction
@@ -86,11 +86,11 @@ def run_game(brain):
         snake.move()
 
         #get distance of food for rewarding
-        new_dist = Agent.manhattan_distance(snake.body[0], food)
+        new_dist = manhattan_distance(snake.body[0], food)
         if new_dist < prev_dist:
             fitness += dist_reward
         elif new_dist > prev_dist:
-            fitness -= dist_penalty
+            fitness += dist_penalty
 
         #Check collisions
         if hit_wall(snake, GRID_SIZE) or hit_self(snake):
@@ -102,7 +102,7 @@ def run_game(brain):
         if snake.body[0] == food:
             snake.grow()
             food = spawn_food(snake)
-            food_score = FOOD_REWARD * (score ** 2)
+            fitness += FOOD_REWARD * (score + 1) ** 2
             score += 1
             steps_since_food = 0
 
@@ -116,9 +116,6 @@ def run_game(brain):
             break
 
         fitness += SURVIVAL_REWARD
-
-    # 8. Fitness calculation
-    fitness = score * 100 + food_score + steps 
 
     ##print(fitness)
     return fitness
