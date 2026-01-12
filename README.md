@@ -51,6 +51,7 @@ This was defintely my favorite part and the one feature that I was anticipating 
 The most rewarding part was watching the snake go for food for the first time.
 
 ![](AI_snake.gif)
+<img width="1229" height="687" alt="snake_matplot" src="https://github.com/user-attachments/assets/7d9a892d-192f-42da-992a-82c757bdd927" />
 
 ---
 
